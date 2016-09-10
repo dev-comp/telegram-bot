@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Echo Bot
+Bundle-SymbolicName: com.bftcom.devcomp.bots.telegram
+Bundle-Version: 1.0.0
+Bundle-Activator: Activator
+Bundle-ActivationPolicy: eager
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.osgi.framework
