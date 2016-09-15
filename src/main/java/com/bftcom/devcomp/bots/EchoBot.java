@@ -15,6 +15,8 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 public class EchoBot extends TelegramLongPollingBot {
   private static Logger logger = LoggerFactory.getLogger(EchoBot.class);
 
+
+
   @Override
   public void onUpdateReceived(Update update) {
     if (update.hasMessage()) {
@@ -31,6 +33,7 @@ public class EchoBot extends TelegramLongPollingBot {
         if (message.getText().equalsIgnoreCase("exit")) {
           logger.info("Bot is shutting down");
           System.exit(0);
+
         }
 
         try {

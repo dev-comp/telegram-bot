@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.bftcom.devcomp.bots</groupId>
   <artifactId>telegram-bot</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
   <name>telegram-bot</name>
@@ -19,9 +19,29 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <jersey.version>2.23</jersey.version>
+    <jerseybundle.version>1.19.1</jerseybundle.version>
+    <httpcompontents.version>4.5.2</httpcompontents.version>
+    <json.version>20160212</json.version>
+    <jackson.version>2.7.4</jackson.version>
   </properties>
 
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/com.sun.grizzly/grizzly-http -->
+    <dependency>
+      <groupId>com.sun.grizzly</groupId>
+      <artifactId>grizzly-http</artifactId>
+      <version>1.9.64</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/com.sun.grizzly/grizzly-http-servlet -->
+    <dependency>
+      <groupId>com.sun.grizzly</groupId>
+      <artifactId>grizzly-http-servlet</artifactId>
+      <version>1.9.64</version>
+    </dependency>
+
 
     <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
     <dependency>
@@ -38,71 +58,203 @@
     </dependency>
 
 
-
     <dependency>
       <groupId>com.github.rubenlagus</groupId>
       <artifactId>TelegramBots</artifactId>
       <version>v2.3.5</version>
     </dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
+    <!--<dependency>-->
+    <!--<groupId>junit</groupId>-->
+    <!--<artifactId>junit</artifactId>-->
+    <!--<version>3.8.1</version>-->
+    <!--<scope>test</scope>-->
+    <!--</dependency>-->
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-      <version>5.0.0</version>
+      <version>6.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <!--<dependency>-->
+    <!--<groupId>org.apache.felix</groupId>-->
+    <!--<artifactId>org.apache.felix.framework</artifactId>-->
+    <!--<version>5.4.0</version>-->
+    <!--<scope>provided</scope>-->
+    <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/javax.interceptor/javax.interceptor-api -->
+    <!-- https://mvnrepository.com/artifact/javax.interceptor/javax.interceptor-api -->
+    <!--<dependency>-->
+    <!--<groupId>javax.interceptor</groupId>-->
+    <!--<artifactId>javax.interceptor-api</artifactId>-->
+    <!--<version>1.2</version>-->
+    <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/javax.jms/javax.jms-api -->
+    <!--<dependency>-->
+    <!--<groupId>javax.jms</groupId>-->
+    <!--<artifactId>javax.jms-api</artifactId>-->
+    <!--<version>2.0.1</version>-->
+    <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
+    <!--<dependency>-->
+    <!--<groupId>javax</groupId>-->
+    <!--<artifactId>javaee-api</artifactId>-->
+    <!--<version>7.0</version>-->
+    <!--</dependency>-->
+
+    <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.bundles.repackaged/jersey-guava -->
+    <!--<dependency>-->
+    <!--<groupId>org.glassfish.jersey.bundles.repackaged</groupId>-->
+    <!--<artifactId>jersey-guava</artifactId>-->
+    <!--<version>2.23.2</version>-->
+    <!--</dependency>-->
+
+
+    <!-- https://mvnrepository.com/artifact/avalon/avalon-framework -->
+    <!--<dependency>-->
+    <!--<groupId>avalon</groupId>-->
+    <!--<artifactId>avalon-framework</artifactId>-->
+    <!--<version>4.1.4</version>-->
+    <!--</dependency>-->
+    <dependency>
+      <groupId>org.glassfish.jersey.containers</groupId>
+      <artifactId>jersey-container-grizzly2-http</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.glassfish.jersey.media</groupId>
+      <artifactId>jersey-media-json-jackson</artifactId>
+      <version>${jersey.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-bundle</artifactId>
+      <version>${jerseybundle.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.jersey</groupId>
+      <artifactId>jersey-grizzly2-servlet</artifactId>
+      <version>${jerseybundle.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>${json.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>${httpcompontents.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <version>${httpcompontents.version}</version>
     </dependency>
   </dependencies>
 
   <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.6</version>
-          <configuration>
-            <descriptorRefs>
-              <descriptorRef>jar-with-dependencies</descriptorRef>
-            </descriptorRefs>
-          </configuration>
-          <executions>
-            <execution>
-              <id>make-assembly</id>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
-            <encoding>UTF-8</encoding>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.5.0</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>java</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <mainClass>com.bftcom.devcomp.bots.EchoBotApp</mainClass>
-          </configuration>
-        </plugin>
-      </plugins>
+    <plugins>
+      <!--<plugin>-->
+      <!--<groupId>org.apache.maven.plugins</groupId>-->
+      <!--<artifactId>maven-jar-plugin</artifactId>-->
+      <!--<version>2.6</version>-->
+      <!--<configuration>-->
+      <!--<archive>-->
+      <!--<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>-->
+      <!--</archive>-->
+      <!--</configuration>-->
+      <!--</plugin>-->
+      <!--<plugin>-->
+      <!--<artifactId>maven-assembly-plugin</artifactId>-->
+      <!--<version>2.6</version>-->
+      <!--<configuration>-->
+      <!--<archive>-->
+      <!--<manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>-->
+      <!--</archive>-->
+      <!--<descriptorRefs>-->
+      <!--<descriptorRef>jar-with-dependencies</descriptorRef>-->
+      <!--</descriptorRefs>-->
+      <!--</configuration>-->
+      <!--<executions>-->
+      <!--<execution>-->
+      <!--<id>make-assembly</id>-->
+      <!--<phase>package</phase>-->
+      <!--<goals>-->
+      <!--<goal>single</goal>-->
+      <!--</goals>-->
+      <!--</execution>-->
+      <!--</executions>-->
+      <!--</plugin>-->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>3.0.1</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <!--<Private-Package>com.bftcom.osgi.*</Private-Package>-->
+            <Export-Package>com.bftcom.devcomp.bots</Export-Package>
+            <Import-Package>!com.sun.*,!groovy.*,!jersey.repackaged.com.google.common.*,*</Import-Package>
+            <Bundle-Activator>com.bftcom.devcomp.bots.Activator</Bundle-Activator>
+            <Bundle-SymbolicName>TelegramBot</Bundle-SymbolicName>
+            <!-- embed all compile and runtime scope dependencies -->
+            <!--<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>-->
+            <!--<Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>-->
+            <!--<Embed-Dependency>slf4j-api,logback-classic</Embed-Dependency>-->
+            <!--<Import-Package>!com.sun.jdi,*</Import-Package>-->
+            <!--<Embed-Dependency>*</Embed-Dependency>-->
+            <!-- inline all non-pom dependencies, except those with scope runtime -->
+
+            <!--<Embed-Dependency>*;scope=!runtime;type=!pom;inline=true</Embed-Dependency>-->
+            <!--<Embed-Dependency>*;scope=!provided</Embed-Dependency>-->
+            <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+            <Embed-Directory>osgi-inf/libs</Embed-Directory>
+            <Embed-Transitive>true</Embed-Transitive>
+          </instructions>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.5.0</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>com.bftcom.devcomp.bots.EchoBotApp</mainClass>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <archive>
+            <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+
+    </plugins>
 
   </build>
 </project>
