@@ -4,6 +4,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.TelegramApiException;
@@ -16,9 +17,13 @@ import org.telegram.telegrambots.updatesreceivers.BotSession;
  * receiving a service event, it prints out the event's details.
  **/
 public class Activator implements BundleActivator, ServiceListener {
+  private BotManager botManager = new BotManager();
   public static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
   BotSession botSession;
+  BundleContext context;
+
+  ServiceRegistration<?> serviceRegistration;
 
   /**
    * Implements BundleActivator.start(). Prints
@@ -28,8 +33,10 @@ public class Activator implements BundleActivator, ServiceListener {
    * @param context the framework context for the bundle.
    **/
   public void start(BundleContext context) {
+
     logger.info("Starting to listen for service events.");
     context.addServiceListener(this);
+    serviceRegistration = context.registerService(IBotManager.class.getName(), botManager, null);
 
     TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
     try {
@@ -48,7 +55,10 @@ public class Activator implements BundleActivator, ServiceListener {
    * @param context the framework context for the bundle.
    **/
   public void stop(BundleContext context) {
+
     context.removeServiceListener(this);
+    serviceRegistration.unregister();
+
     logger.info("Stopped listening for service events.");
     //    EchoBotApp.main(new String[]{""});
 
