@@ -120,6 +120,11 @@
     <!--<version>4.1.4</version>-->
     <!--</dependency>-->
     <dependency>
+      <groupId>com.bftcom.devcomp.api</groupId>
+      <artifactId>bot-adapter-api</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.glassfish.jersey.containers</groupId>
       <artifactId>jersey-container-grizzly2-http</artifactId>
       <version>${jersey.version}</version>

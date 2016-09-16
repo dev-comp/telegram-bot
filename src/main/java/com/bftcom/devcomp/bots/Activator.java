@@ -1,5 +1,6 @@
 package com.bftcom.devcomp.bots;
 
+import com.bftcom.devcomp.api.IBotManager;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;

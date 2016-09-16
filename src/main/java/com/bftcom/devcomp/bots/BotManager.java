@@ -1,5 +1,6 @@
 package com.bftcom.devcomp.bots;
 
+import com.bftcom.devcomp.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.TelegramApiException;
@@ -7,6 +8,7 @@ import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.bots.BotOptions;
 import org.telegram.telegrambots.updatesreceivers.BotSession;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -20,17 +22,19 @@ public class BotManager implements IBotManager {
   private static final TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
 
   @Override
-  public boolean startBotSession(String string, String proxyHost, Integer proxyPort) {
+  public boolean startBotSession(String id, Map<String, String> config) {
     BotOptions botOptions = new BotOptions();
-    if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && proxyPort > 0) {
+    String proxyHost = config.get("proxyHost");
+    String proxyPort = config.get("proxyPort");
+    if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && Integer.parseInt(proxyPort) > 0) {
       botOptions.setProxyHost(proxyHost);
-      botOptions.setProxyPort(proxyPort);
+      botOptions.setProxyPort(Integer.parseInt(proxyPort));
     }
     EchoBot bot = new EchoBot(botOptions);
     try {
       BotSession botSession = telegramBotsApi.registerBot(bot);
       synchronized (botSessions) {
-        botSessions.put(bot.getBotToken(), botSession);
+        botSessions.put(id, botSession);
       }
     } catch (TelegramApiException e) {
       logger.warn("", e);
@@ -40,11 +44,11 @@ public class BotManager implements IBotManager {
   }
 
   @Override
-  public boolean stopBotSession(String botToken) {
+  public boolean stopBotSession(String id) {
     synchronized (botSessions) {
-      BotSession botSession = botSessions.remove(botToken);
+      BotSession botSession = botSessions.remove(id);
       if (botSession != null) {
-        logger.info("bot session for bot " + botToken + " is closed.");
+        logger.info("bot session for bot " + id + " is closed.");
         botSession.close();
       }
     }
