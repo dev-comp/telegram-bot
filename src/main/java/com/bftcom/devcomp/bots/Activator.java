@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.TelegramBotsApi;
+import org.telegram.telegrambots.bots.BotOptions;
 import org.telegram.telegrambots.updatesreceivers.BotSession;
 
 /**
@@ -33,18 +34,10 @@ public class Activator implements BundleActivator, ServiceListener {
    * @param context the framework context for the bundle.
    **/
   public void start(BundleContext context) {
-
-    logger.info("Starting to listen for service events.");
+    logger.info("Starting to listen for service events. With osgi.core");
+    
     context.addServiceListener(this);
     serviceRegistration = context.registerService(IBotManager.class.getName(), botManager, null);
-
-    TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-    try {
-      EchoBot bot = new EchoBot();
-      botSession = telegramBotsApi.registerBot(bot);
-    } catch (TelegramApiException e) {
-//      BotLogger.error("ERROR:", e);
-    }
   }
 
   /**
@@ -58,15 +51,9 @@ public class Activator implements BundleActivator, ServiceListener {
 
     context.removeServiceListener(this);
     serviceRegistration.unregister();
+    botManager.stopAllBotSessions();
 
     logger.info("Stopped listening for service events.");
-    //    EchoBotApp.main(new String[]{""});
-
-    if (botSession!= null) {
-      logger.info(EchoBotApp.class.getSimpleName() + " is shut down");
-      botSession.close();
-    }
-
     // Note: It is not required that we remove the listener here,
     // since the framework will do it automatically anyway.
   }

@@ -129,7 +129,7 @@ Import-Package: com.bftcom.devcomp.bots;version="[1.0,2)",javax.activati
  ax.xml.validation,
  org.ietf.jgss,
  org.osgi.
- framework;version="[1.8,2)",org.w3c.dom,org.w3c.dom.bootstrap,org.w3c.d
+ framework;version="[1.5,2)",org.w3c.dom,org.w3c.dom.bootstrap,org.w3c.d
  om.ls,org.xml.sax,org.xml.sax.helpers
 Originally-Created-By: Apache Maven Bundle Plugin
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"

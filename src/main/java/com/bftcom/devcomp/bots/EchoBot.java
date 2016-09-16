@@ -6,6 +6,7 @@ import org.telegram.telegrambots.TelegramApiException;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.bots.BotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 /**
@@ -15,7 +16,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 public class EchoBot extends TelegramLongPollingBot {
   private static Logger logger = LoggerFactory.getLogger(EchoBot.class);
 
-
+  public EchoBot(BotOptions options) {
+    super(options);
+  }
 
   @Override
   public void onUpdateReceived(Update update) {

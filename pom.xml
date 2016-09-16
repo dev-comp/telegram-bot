@@ -76,12 +76,12 @@
       <version>6.0.0</version>
       <scope>provided</scope>
     </dependency>
-    <!--<dependency>-->
-    <!--<groupId>org.apache.felix</groupId>-->
-    <!--<artifactId>org.apache.felix.framework</artifactId>-->
-    <!--<version>5.4.0</version>-->
-    <!--<scope>provided</scope>-->
-    <!--</dependency>-->
+    <dependency>
+    <groupId>org.apache.felix</groupId>
+    <artifactId>org.apache.felix.framework</artifactId>
+    <version>5.4.0</version>
+    <scope>provided</scope>
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/javax.interceptor/javax.interceptor-api -->
     <!-- https://mvnrepository.com/artifact/javax.interceptor/javax.interceptor-api -->
@@ -99,11 +99,11 @@
     <!--</dependency>-->
 
     <!-- https://mvnrepository.com/artifact/javax/javaee-api -->
-    <!--<dependency>-->
-    <!--<groupId>javax</groupId>-->
-    <!--<artifactId>javaee-api</artifactId>-->
-    <!--<version>7.0</version>-->
-    <!--</dependency>-->
+    <dependency>
+    <groupId>javax</groupId>
+    <artifactId>javaee-api</artifactId>
+    <version>7.0</version>
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.bundles.repackaged/jersey-guava -->
     <!--<dependency>-->
@@ -200,6 +200,13 @@
         </configuration>
       </plugin>
       <plugin>
+        
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        
+      </plugin>
+      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <version>3.0.1</version>
@@ -207,7 +214,7 @@
         <configuration>
           <instructions>
             <!--<Private-Package>com.bftcom.osgi.*</Private-Package>-->
-            <Export-Package>com.bftcom.devcomp.bots</Export-Package>
+            <!--<Export-Package>com.bftcom.devcomp.bots</Export-Package>-->
             <Import-Package>!com.sun.*,!groovy.*,!jersey.repackaged.com.google.common.*,*</Import-Package>
             <Bundle-Activator>com.bftcom.devcomp.bots.Activator</Bundle-Activator>
             <Bundle-SymbolicName>TelegramBot</Bundle-SymbolicName>
@@ -221,7 +228,7 @@
 
             <!--<Embed-Dependency>*;scope=!runtime;type=!pom;inline=true</Embed-Dependency>-->
             <!--<Embed-Dependency>*;scope=!provided</Embed-Dependency>-->
-            <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+            <Embed-Dependency>*;scope=compile</Embed-Dependency>
             <Embed-Directory>osgi-inf/libs</Embed-Directory>
             <Embed-Transitive>true</Embed-Transitive>
           </instructions>
@@ -240,7 +247,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>com.bftcom.devcomp.bots.EchoBotApp</mainClass>
+          <mainClass>EchoBotApp</mainClass>
         </configuration>
       </plugin>
       <plugin>

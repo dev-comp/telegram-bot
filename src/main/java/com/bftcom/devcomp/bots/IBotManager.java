@@ -5,6 +5,7 @@ package com.bftcom.devcomp.bots;
  * @date: 16.09.2016.
  */
 public interface IBotManager {
-  String createBot(String string) ;
+  boolean startBotSession(String string, String proxyHost, Integer proxyPort);
 
+  boolean stopBotSession(String string);
 }
