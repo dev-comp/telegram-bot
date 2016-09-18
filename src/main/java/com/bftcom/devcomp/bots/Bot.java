@@ -13,12 +13,15 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
  * @author ikka
  * @date: 10.09.2016.
  */
-public class EchoBot extends TelegramLongPollingBot {
-  private static Logger logger = LoggerFactory.getLogger(EchoBot.class);
+public class Bot extends TelegramLongPollingBot {
+  @SuppressWarnings("PackageAccessibility")
+  private static Logger logger = LoggerFactory.getLogger(Bot.class);
 
-  public EchoBot(BotOptions options) {
+  public Bot(BotOptions options) {
     super(options);
   }
+  
+  
 
   @Override
   public void onUpdateReceived(Update update) {

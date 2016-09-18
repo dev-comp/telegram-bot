@@ -116,7 +116,9 @@ Embedded-Artifacts: osgi-inf/libs/grizzly-http-1.9.64.jar;g="com.sun.gri
  ar;g="commons-codec";a="commons-codec";v="1.9",osgi-inf/libs/httpmime-4
  .5.2.jar;g="org.apache.httpcomponents";a="httpmime";v="4.5.2",
  osgi-inf/libs/bot-adapter-api-1.0.0.jar;g="com.bftcom.devcomp.api";
- a="bot-adapter-api";v="1.0.0"
+ a="bot-adapter-api";v="1.0.0",
+ osgi-inf/libs/ampq-client-3.6.5.jar;g="com.rabbitmq";a="amqp-client";
+ v="3.6.3"
 Export-Package: com.bftcom.devcomp.bots;version="1.0.0",
  com.bftcom.devcomp.api;version="1.0.0"
 Import-Package: com.bftcom.devcomp.bots;version="[1.0,2)",javax.activati
@@ -135,7 +137,12 @@ Import-Package: com.bftcom.devcomp.bots;version="[1.0,2)",javax.activati
  org.osgi.framework;version="[1.5,2)",
  org.w3c.dom,org.w3c.dom.bootstrap,
  org.w3c.dom.ls,org.xml.sax,org.xml.sax.helpers,
- com.bftcom.devcomp.api
+ com.bftcom.devcomp.api;version="1.0.0",
+ com.rabbitmq.client;version="3.6.3",com.rabbitmq.client.impl,
+ com.rabbitmq.tools,
+ com.rabbitmq.tools.json,
+ com.rabbitmq.tools.jsonrpc,
+ com.rabbitmq.utility
 Originally-Created-By: Apache Maven Bundle Plugin
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Tool: Bnd-3.0.0.201509101326
