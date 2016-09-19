@@ -1,91 +1,64 @@
 package com.bftcom.devcomp.bots;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
- * todo@shapoval add class description
- * <p>
+ * Класс, представляющий собой сообщение для бомена между сервисом и адаптерами/экземплярами ботов
  * date: 18.09.2016
  *
  * @author p.shapoval
  */
 public class Message {
 
-  private String guid;
-  private String type;//request,response,info
-  private String requestGuid;
-  private String responseGuid;
-  private String command;
-  private Map<String, String> properties;
+  private BotCommand command;
+  private Map<String, String> userProperties;
+  private Map<String, String> serviceProperties;
 
-  public String getGuid() {
-    return guid;
-  }
-
-  public void setGuid(String guid) {
-    this.guid = guid;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
-
-  public String getRequestGuid() {
-    return requestGuid;
-  }
-
-  public void setRequestGuid(String requestGuid) {
-    this.requestGuid = requestGuid;
-  }
-
-  public String getResponseGuid() {
-    return responseGuid;
-  }
-
-  public void setResponseGuid(String responseGuid) {
-    this.responseGuid = responseGuid;
-  }
-
-  public String getCommand() {
+  public BotCommand getCommand() {
     return command;
   }
 
-  public void setCommand(String command) {
+  public void setCommand(BotCommand command) {
     this.command = command;
   }
 
-  public Map<String, String> getProperties() {
-    return properties;
+  public Map<String, String> getUserProperties() {
+    return userProperties;
   }
 
-  public void setProperties(Map<String, String> properties) {
-    this.properties = properties;
+  public void setUserProperties(Map<String, String> userProperties) {
+    this.userProperties = userProperties;
   }
 
-  //tmp for fast test
+  public Map<String, String> getServiceProperties() {
+    return serviceProperties;
+  }
+
+  public void setServiceProperties(Map<String, String> serviceProperties) {
+    this.serviceProperties = serviceProperties;
+  }
+
+  @Override
+  public String toString() {
+    return "Message{" +
+        "command=" + command +
+        ", userProperties=" + userProperties +
+        ", serviceProperties=" + serviceProperties +
+        '}';
+  }
+
+  @SuppressWarnings("PackageAccessibility")
   public static void main(String[] args) {
-    ObjectMapper mapper = new ObjectMapper();
-    Message obj = new Message();
-    HashMap<String, String> config = new HashMap<>();
-    config.put("test", "t");
-    config.put("t", "tttt");
-    obj.setProperties(config);
-
-    obj.setGuid(UUID.randomUUID().toString());
+    ObjectMapper objectMapper = new ObjectMapper();
+    Message message = new Message();
+    message.setCommand(BotCommand.ENTRY_PROCESS_MESSAGE);
 
     try {
-      String jsonInString = mapper.writeValueAsString(obj);
-      System.out.println(jsonInString);
-    } catch (IOException e) {
+      System.out.println(objectMapper.writeValueAsString(message));
+    } catch (JsonProcessingException e) {
       e.printStackTrace();
     }
   }

@@ -21,8 +21,11 @@ import java.util.concurrent.TimeoutException;
  * @date: 16.09.2016.
  */
 public class BotManager implements IBotManager {
+  public static final String TELEGRAM_ADAPTER = "telegram-adapter";
+
   @SuppressWarnings("PackageAccessibility")
   private static final Logger logger = LoggerFactory.getLogger(BotManager.class);
+  @SuppressWarnings("PackageAccessibility")
   private static ObjectMapper mapper = new ObjectMapper();
 
   private static final ConcurrentHashMap<String, BotSession> botSessions = new ConcurrentHashMap<>();
@@ -34,82 +37,111 @@ public class BotManager implements IBotManager {
 
 
   public BotManager() {
+    logger.info("creating a new bot manager adapter");
     factory = new ConnectionFactory();
     try {
       connection = factory.newConnection();
       Channel channel = connection.createChannel();
-      AMQP.Queue.DeclareOk declareOk = channel.queueDeclare(QueuesConfiguration.MANAGEMENT_QUEUE, false, false, false, null);
-      channel.addShutdownListener(new ShutdownListener() {
-        @Override
-        public void shutdownCompleted(ShutdownSignalException cause) {
-          logger.info("shutting down channel " + declareOk.getQueue());
-        }
-      });
+      String AdapterQueueName = BotConst.QUEUE_ADAPTER_PREFIX + TELEGRAM_ADAPTER;
+      AMQP.Queue.DeclareOk declareOk = channel.queueDeclare(AdapterQueueName, false, false, false, null);
+      channel.addShutdownListener(cause -> logger.info("shutting down channel " + declareOk.getQueue()));
 
       String[] _consumerTag = new String[1];
       Consumer consumer = new DefaultConsumer(channel) {
         @Override
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
             throws IOException {
+          logger.error("consumerTag=" + consumerTag);
+          logger.warn("consumerTag=" + consumerTag);
+          logger.debug("consumerTag=" + consumerTag);
+          logger.info("consumerTag=" + consumerTag);
 
           String sMsg = new String(body, StandardCharsets.UTF_8);
           Message message = mapper.readValue(sMsg, Message.class);
-          logger.info(" [x] Received '" + message + "'");
-          
-          if (message.getCommand().equals("cancel")) {
-            channel.basicCancel(_consumerTag[0]);
-          } else if (message.getCommand().equals(Commands.START_BOT.name())) {
-            startBotSession(message.getProperties().get(Configuration.BOT_TOKEN), message.getProperties());
-          } else if (message.getCommand().equals(Commands.STOP_BOT.name())) {
-            stopBotSession(message.getProperties().get("botToken"));
+          logger.info(" [xxx] Received '" + message + "'");
+
+          if (message.getCommand().equals(BotCommand.ADAPTER_STOP_ENTRY)) {
+            logger.info("lets try to stop one bot session");
+            stopBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN));
+            //channel.basicCancel(_consumerTag[0]);
+//          } else if (message.getCommand().equals(BotCommands.START_ENTRY.name())) {
+//            startBotSession(message.getServiceProperties().get(Configuration.BOT_TOKEN), message.getServiceProperties());
+//          } else if (message.getCommand().equals(BotCommands.STOP_ENTRY.name())) {
+//            stopBotSession(message.getServiceProperties().get(Configuration.BOT_TOKEN));
+//          }
+          } else if (message.getCommand().equals(BotCommand.ADAPTER_STOP_ALL_ENTRIES)) {
+            //channel.basicCancel(_consumerTag[0]);
+            logger.info("lets try to stop all bot sessions");
+          } else if (message.getCommand().equals(BotCommand.ADAPTER_START_ENTRY)) {
+            logger.info("lets try to start bot session");
+            startBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN), message.getUserProperties());
           }
-        } 
+        }
       };
-      _consumerTag[0] = channel.basicConsume(QueuesConfiguration.MANAGEMENT_QUEUE, true, consumer);
+      logger.debug("subscribing to a queue " + AdapterQueueName);
+      _consumerTag[0] = channel.basicConsume(AdapterQueueName, true, consumer);
 
     } catch (IOException | TimeoutException e) {
       logger.error("", e);
     }
-
-
   }
 
   @Override
   public boolean startBotSession(String id, Map<String, String> config) {
-  logger.info("startBotSession " + id + " " + config.toString());
-  //prevent starting bot sessions with the same id
-  if (id != null) {
-    synchronized (botSessions) {
-      if (botSessions.get(id) != null) {
-        logger.warn("prevent to start duplicate bot sessions with the same id " + id);
-        return true;
+    logger.info("startBotSession id=" + id + ";config=" + config.toString());
+    //prevent starting bot sessions with the same id
+    if (id != null) {
+      synchronized (botSessions) {
+        if (botSessions.get(id) != null) {
+          logger.warn("prevent to start duplicate bot sessions with the same id " + id);
+          return true;
+        }
       }
     }
-  }
     BotOptions botOptions = new BotOptions();
     String proxyHost = config.get(Configuration.PROXY_HOST);
     String proxyPort = config.get(Configuration.PROXY_PORT);
-    
+
     //set proxy options only if both proxyHost and poxyPort are defined
     if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && Integer.parseInt(proxyPort) > 0) {
       botOptions.setProxyHost(proxyHost);
       botOptions.setProxyPort(Integer.parseInt(proxyPort));
     }
-    
+
     Bot bot = new Bot(botOptions) {
       @Override
       public String getBotUsername() {
+        logger.debug("getBotUserName ");
+        logger.debug(config.get(Configuration.BOT_USERNAME));
         return config.get(Configuration.BOT_USERNAME);
       }
 
       @Override
       public String getBotToken() {
+        logger.debug("getBotToken ");
+        logger.debug(config.get(Configuration.BOT_TOKEN));
         return config.get(Configuration.BOT_TOKEN);
       }
     };
-    
+
     try {
-      logger.info("regestring bot " + id + " " + config.toString());
+      logger.warn("creating queues");
+      String outQueueName = QueuesConfiguration.BOT_PREFIX + QueuesConfiguration.OUT_QUEUE;
+      Channel outChannel = createChannel(outQueueName);
+
+      String inQueueName = QueuesConfiguration.BOT_PREFIX + QueuesConfiguration.IN_QUEUE;
+      Channel inChannel = createChannel(inQueueName);
+
+      bot.setInQueueName(inQueueName);
+      bot.setOutQueueName(outQueueName);
+      bot.setInChannel(inChannel);
+      bot.setOutChannel(outChannel);
+    } catch (IOException e) {
+      return false;
+    }
+
+    try {
+      logger.info("registering bot " + id + " " + config.toString());
       BotSession botSession = telegramBotsApi.registerBot(bot);
       synchronized (botSessions) {
         botSessions.put(id, botSession);
@@ -133,8 +165,9 @@ public class BotManager implements IBotManager {
     return true;
   }
 
-@Override
+  @Override
   public void stopAllBotSessions() {
+    logger.debug("stopping all bot sessions");
     synchronized (botSessions) {
       for (String botSessionKey : botSessions.keySet()) {
         BotSession botSession = botSessions.remove(botSessionKey);
@@ -151,6 +184,19 @@ public class BotManager implements IBotManager {
       connection.close();
     }
     super.finalize();
+  }
+
+  private Channel createChannel(String queueName) throws IOException {
+    Channel channel = null;
+    try {
+      channel = connection.createChannel();
+      AMQP.Queue.DeclareOk declareOk = channel.queueDeclare(queueName, false, false, false, null);
+      channel.addShutdownListener(cause -> logger.info("shutting down channel " + declareOk.getQueue()));
+    } catch (IOException e) {
+      logger.error("", e);
+      throw e;
+    }
+    return channel;
   }
 
   public static void main(String[] args) {

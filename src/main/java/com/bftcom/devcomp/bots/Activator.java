@@ -1,12 +1,18 @@
 package com.bftcom.devcomp.bots;
 
 import com.bftcom.devcomp.api.IBotManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.*;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
 
 /**
  * This class implements a simple bundle that utilizes the OSGi
@@ -17,9 +23,16 @@ public class Activator implements BundleActivator, ServiceListener, QueuesConfig
   @SuppressWarnings("PackageAccessibility")
   public static final Logger logger = LoggerFactory.getLogger(Activator.class);
 
+  @SuppressWarnings("PackageAccessibility")
+  ObjectMapper mapper = new ObjectMapper();
+
 
   BundleContext context;
   IBotManager botManager;
+
+  private ConnectionFactory factory;
+  private Connection connection;
+  private Channel channel;
 //  ServiceRegistration<?> serviceRegistration;
 
 
@@ -53,7 +66,7 @@ public class Activator implements BundleActivator, ServiceListener, QueuesConfig
     // Note: It is not required that we remove the listener here,
     // since the framework will do it automatically anyway.
     context.removeServiceListener(this);
-   //serviceRegistration.unregister();
+    //serviceRegistration.unregister();
     botManager.stopAllBotSessions();
     logger.info("Stopped listening for service events.");
 
