@@ -13,6 +13,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * @author ikka
@@ -27,12 +28,16 @@ public class Bot extends TelegramLongPollingBot {
   private static ObjectMapper mapper = new ObjectMapper();
   private String outQueueName;
   private String inQueueName;
+  private Map<String, String> serviceProp;
 
-  public Bot(BotOptions options) {
+  public Bot(BotOptions options, Map<String, String> serviceProp) {
     super(options);
+    this.serviceProp = serviceProp;
   }
   
   
+
+  private static final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
   public void onUpdateReceived(Update update) {
@@ -42,7 +47,14 @@ public class Bot extends TelegramLongPollingBot {
 
       if (message.hasText()) {
         try {
-          inChannel.basicPublish("", inQueueName, null, message.getText().getBytes(StandardCharsets.UTF_8));
+          com.bftcom.devcomp.bots.Message botMsg = new com.bftcom.devcomp.bots.Message();
+          botMsg.setCommand(BotCommand.SERVICE_PROCESS_ENTRY_MESSAGE);
+          botMsg.getServiceProperties().put(BotConst.PROP_ENTRY_NAME, serviceProp.get(BotConst.PROP_ENTRY_NAME));
+          botMsg.getServiceProperties().put(BotConst.PROP_USER_NAME, message.getFrom().getFirstName());
+          botMsg.getUserProperties().put("BODY_TEXT", message.getText());
+          // todo остальные нужные параметры
+
+          inChannel.basicPublish("", inQueueName, null, objectMapper.writeValueAsString(botMsg).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -115,11 +127,13 @@ public class Bot extends TelegramLongPollingBot {
         
       }
     };
+/*
     try {
       _consumerTag[0] = channel.basicConsume(QueuesConfiguration.MANAGEMENT_QUEUE, true, consumer);
     } catch (IOException e) {
       e.printStackTrace();
     }
+*/
 
   }
 

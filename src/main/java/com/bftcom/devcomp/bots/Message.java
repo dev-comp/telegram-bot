@@ -3,6 +3,7 @@ package com.bftcom.devcomp.bots;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -14,8 +15,8 @@ import java.util.Map;
 public class Message {
 
   private BotCommand command;
-  private Map<String, String> userProperties;
-  private Map<String, String> serviceProperties;
+  private Map<String, String> userProperties = new HashMap<>();
+  private Map<String, String> serviceProperties = new HashMap<>();
 
   public BotCommand getCommand() {
     return command;
@@ -54,7 +55,7 @@ public class Message {
   public static void main(String[] args) {
     ObjectMapper objectMapper = new ObjectMapper();
     Message message = new Message();
-    message.setCommand(BotCommand.ENTRY_PROCESS_MESSAGE);
+//    message.setCommand(BotCommand.ENTRY_PROCESS_MESSAGE);
 
     try {
       System.out.println(objectMapper.writeValueAsString(message));
