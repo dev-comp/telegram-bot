@@ -128,9 +128,9 @@ public class Bot extends TelegramLongPollingBot {
         SendMessage sendMessageRequest = new SendMessage();
         
 //        message.getChatId().toString()
-        sendMessageRequest.setChatId(""); //who should get from the message the sender that sent it.
+        sendMessageRequest.setChatId(message.getServiceProperties().get("chatId")); //who should get from the message the sender that sent it.
         
-        sendMessageRequest.setText(message.getUserProperties().get("body"));
+        sendMessageRequest.setText(message.getUserProperties().get(IBotConst.PROP_BODY_TEXT));
 
         try {
           sendMessage(sendMessageRequest); //at the end, so some magic and send the message ;)
@@ -141,7 +141,7 @@ public class Bot extends TelegramLongPollingBot {
       }
     };
     try {
-      _consumerTag[0] = channel.basicConsume(QueuesConfiguration.MANAGEMENT_QUEUE, true, consumer);
+      _consumerTag[0] = channel.basicConsume(getOutQueueName(), true, consumer);
     } catch (IOException e) {
       e.printStackTrace();
     }

@@ -122,10 +122,10 @@ public class BotManager implements IBotManager {
 
     try {
       logger.warn("creating queues");
-      String outQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
+      String outQueueName = IBotConst.QUEUE_ENTRY_PREFIX + config.get(IBotConst.PROP_ENTRY_NAME);
       Channel outChannel = createChannel(outQueueName);
 
-      String inQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
+      String inQueueName = IBotConst.QUEUE_ENTRY_PREFIX + "EntryQueue";
       Channel inChannel = createChannel(inQueueName);
 
       bot.setInQueueName(inQueueName);
