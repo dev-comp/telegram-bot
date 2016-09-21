@@ -23,7 +23,7 @@ import java.util.concurrent.TimeoutException;
 public class BotManager implements IBotManager {
   String managementQueueName = "ManagementQueue";
 //  # ��� �������������� ������� ��� ��������� �� ����������� �����
-  String entryQueue = "EntryQueue";
+  String botQueue = "BotQueue";
   public static final String TELEGRAM_ADAPTER = "telegram-adapter";
   
 
@@ -66,19 +66,19 @@ public class BotManager implements IBotManager {
           Message message = mapper.readValue(sMsg, Message.class);
           logger.info(" [xxx] Received '" + message + "'");
 
-          if (message.getCommand().equals(BotCommand.ADAPTER_STOP_ENTRY)) {
+          if (message.getCommand().equals(BotCommand.ADAPTER_STOP_BOT)) {
             logger.info("lets try to stop one bot session");
             stopBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN));
             //channel.basicCancel(_consumerTag[0]);
-//          } else if (message.getCommand().equals(BotCommands.START_ENTRY.name())) {
+//          } else if (message.getCommand().equals(BotCommands.START_BOT.name())) {
 //            startBotSession(message.getServiceProperties().get(Configuration.BOT_TOKEN), message.getServiceProperties());
-//          } else if (message.getCommand().equals(BotCommands.STOP_ENTRY.name())) {
+//          } else if (message.getCommand().equals(BotCommands.STOP_BOT.name())) {
 //            stopBotSession(message.getServiceProperties().get(Configuration.BOT_TOKEN));
 //          }
-          } else if (message.getCommand().equals(BotCommand.ADAPTER_STOP_ALL_ENTRIES)) {
+          } else if (message.getCommand().equals(BotCommand.ADAPTER_STOP_ALL_BOTS)) {
             //channel.basicCancel(_consumerTag[0]);
             logger.info("lets try to stop all bot sessions");
-          } else if (message.getCommand().equals(BotCommand.ADAPTER_START_ENTRY)) {
+          } else if (message.getCommand().equals(BotCommand.ADAPTER_START_BOT)) {
             logger.info("lets try to start bot session");
             startBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN),
                     message.getUserProperties(), message.getServiceProperties());
@@ -123,12 +123,12 @@ public class BotManager implements IBotManager {
 
     try {
       logger.warn("creating queues");
-      bot.setEntryName(serviceProp.get(IBotConst.PROP_ENTRY_NAME));
+      bot.setName(serviceProp.get(IBotConst.PROP_BOT_NAME));
 
-      String outQueueName = IBotConst.QUEUE_ENTRY_PREFIX + bot.getEntryName();
+      String outQueueName = IBotConst.QUEUE_BOT_PREFIX + bot.getName();
       Channel outChannel = createChannel(outQueueName);
 
-      String inQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
+      String inQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "BotQueue";
       Channel inChannel = createChannel(inQueueName);
 
       bot.setInQueueName(inQueueName);

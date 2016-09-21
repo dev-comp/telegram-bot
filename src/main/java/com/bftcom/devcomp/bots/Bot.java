@@ -29,7 +29,7 @@ public class Bot extends TelegramLongPollingBot {
   private String outQueueName;
   private String inQueueName;
 
-  private String entryName;
+  private String Name;
 
   @SuppressWarnings("PackageAccessibility")
   private static ObjectMapper objectMapper = new ObjectMapper();
@@ -51,12 +51,12 @@ public class Bot extends TelegramLongPollingBot {
 
       if (message.hasText()) {
         com.bftcom.devcomp.bots.Message msgToForward = new com.bftcom.devcomp.bots.Message();
-        msgToForward.setCommand(BotCommand.SERVICE_PROCESS_ENTRY_MESSAGE);
+        msgToForward.setCommand(BotCommand.SERVICE_PROCESS_BOT_MESSAGE);
         Map<String, String> userProperties = msgToForward.getUserProperties();
         Map<String, String> serviceProperties = msgToForward.getServiceProperties();
 
         userProperties.put(IBotConst.PROP_BODY_TEXT, message.getText());
-        serviceProperties.put(IBotConst.PROP_ENTRY_NAME, getEntryName());
+        serviceProperties.put(IBotConst.PROP_BOT_NAME, getName());
         serviceProperties.put(IBotConst.PROP_USER_NAME, message.getFrom().getFirstName());
         serviceProperties.put("chatId", String.valueOf(message.getChatId()));
 
@@ -161,11 +161,11 @@ public class Bot extends TelegramLongPollingBot {
     return inQueueName;
   }
 
-  public String getEntryName() {
-    return entryName;
+  public String getName() {
+    return Name;
   }
 
-  public void setEntryName(String entryName) {
-    this.entryName = entryName;
+  public void setName(String name) {
+    this.Name = name;
   }
 }
