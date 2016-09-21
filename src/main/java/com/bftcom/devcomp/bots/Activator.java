@@ -52,7 +52,9 @@ public class Activator implements BundleActivator, ServiceListener, QueuesConfig
     logger.info("-------------------------------------------------------------------------------------------------");
     logger.info("-------------------------------------------------------------------------------------------------");
 
+/*
     botManager = new BotManager();
+*/
     context.addServiceListener(this);
 
     //failed attempt to work through interfaces directly.  

@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class BotManager implements IBotManager {
   String managementQueueName = "ManagementQueue";
-//  # Имя прослушиваемой очереди для сообщений от экземпляров ботов
+//  # пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
   String entryQueue = "EntryQueue";
   public static final String TELEGRAM_ADAPTER = "telegram-adapter";
   
@@ -80,7 +80,8 @@ public class BotManager implements IBotManager {
             logger.info("lets try to stop all bot sessions");
           } else if (message.getCommand().equals(BotCommand.ADAPTER_START_ENTRY)) {
             logger.info("lets try to start bot session");
-            startBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN), message.getUserProperties());
+            startBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN),
+                    message.getUserProperties(), message.getServiceProperties());
           }
         }
       };
@@ -93,8 +94,8 @@ public class BotManager implements IBotManager {
   }
 
   @Override
-  public boolean startBotSession(String id, Map<String, String> config) {
-    logger.info("startBotSession id=" + id + ";config=" + config.toString());
+  public boolean startBotSession(String id, Map<String, String> userProps, Map<String, String> serviceProp) {
+    logger.info("startBotSession id=" + id + ";config=" + userProps.toString());
     //prevent starting bot sessions with the same id
     if (id != null) {
       synchronized (botSessions) {
@@ -104,28 +105,30 @@ public class BotManager implements IBotManager {
         }
       }
     }
-    BotOptions botOptions = getBotOptionsWithProxyConfig(config);
+    BotOptions botOptions = getBotOptionsWithProxyConfig(userProps);
     Bot bot = new Bot(botOptions) {
       @Override
       public String getBotUsername() {
-        logger.debug("getBotUserName="+config.get(Configuration.BOT_USERNAME));
-        return config.get(Configuration.BOT_USERNAME);
+        logger.debug("getBotUserName=" + userProps.get(Configuration.BOT_USERNAME));
+        return userProps.get(Configuration.BOT_USERNAME);
       }
 
       @Override
       public String getBotToken() {
         logger.debug("getBotToken ");
-        logger.debug(config.get(Configuration.BOT_TOKEN));
-        return config.get(Configuration.BOT_TOKEN);
+        logger.debug(userProps.get(Configuration.BOT_TOKEN));
+        return userProps.get(Configuration.BOT_TOKEN);
       }
     };
 
     try {
       logger.warn("creating queues");
-      String outQueueName = IBotConst.QUEUE_ENTRY_PREFIX + config.get(IBotConst.PROP_ENTRY_NAME);
+      bot.setEntryName(serviceProp.get(IBotConst.PROP_ENTRY_NAME));
+
+      String outQueueName = IBotConst.QUEUE_ENTRY_PREFIX + bot.getEntryName();
       Channel outChannel = createChannel(outQueueName);
 
-      String inQueueName = IBotConst.QUEUE_ENTRY_PREFIX + "EntryQueue";
+      String inQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
       Channel inChannel = createChannel(inQueueName);
 
       bot.setInQueueName(inQueueName);
@@ -137,7 +140,7 @@ public class BotManager implements IBotManager {
     }
 
     try {
-      logger.info("registering bot " + id + " " + config.toString());
+      logger.info("registering bot " + id + " " + userProps.toString());
       BotSession botSession = telegramBotsApi.registerBot(bot);
       synchronized (botSessions) {
         botSessions.put(id, botSession);

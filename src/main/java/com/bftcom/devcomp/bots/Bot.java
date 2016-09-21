@@ -29,6 +29,8 @@ public class Bot extends TelegramLongPollingBot {
   private String outQueueName;
   private String inQueueName;
 
+  private String entryName;
+
   @SuppressWarnings("PackageAccessibility")
   private static ObjectMapper objectMapper = new ObjectMapper();
 
@@ -52,19 +54,12 @@ public class Bot extends TelegramLongPollingBot {
         msgToForward.setCommand(BotCommand.SERVICE_PROCESS_ENTRY_MESSAGE);
         Map<String, String> userProperties = msgToForward.getUserProperties();
         Map<String, String> serviceProperties = msgToForward.getServiceProperties();
-        
+
         userProperties.put(IBotConst.PROP_BODY_TEXT, message.getText());
-
+        serviceProperties.put(IBotConst.PROP_ENTRY_NAME, getEntryName());
+        serviceProperties.put(IBotConst.PROP_USER_NAME, message.getFrom().getFirstName());
         serviceProperties.put("chatId", String.valueOf(message.getChatId()));
-        userProperties.put(IBotConst.PROP_ADAPTER_NAME, "telegram-adapter");
-        userProperties.put(IBotConst.PROP_ENTRY_NAME, getBotUsername());
-        userProperties.put(IBotConst.PROP_USER_NAME, String.valueOf(message.getFrom().getUserName()));
 
-        serviceProperties.put("chatId", String.valueOf(message.getChatId()));
-        serviceProperties.put(IBotConst.PROP_ADAPTER_NAME, "telegram-adapter");
-        serviceProperties.put(IBotConst.PROP_ENTRY_NAME, getBotUsername());
-        serviceProperties.put(IBotConst.PROP_USER_NAME, String.valueOf(message.getFrom().getUserName()));
-      
         try {
           inChannel.basicPublish("", inQueueName, null, objectMapper.writeValueAsString(msgToForward).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -79,16 +74,13 @@ public class Bot extends TelegramLongPollingBot {
         sendMessageRequest.setChatId(message.getChatId().toString()); //who should get from the message the sender that sent it.
         sendMessageRequest.setText(message.getText());
 
+/*
         if (message.getText().equalsIgnoreCase("exit")) {
           logger.info("Bot is shutting down");
           System.exit(0);
 
         }
-        try {
-          sendMessage(sendMessageRequest); //at the end, so some magic and send the message ;)
-        } catch (TelegramApiException e) {
-          logger.error("", e);
-        }
+*/
       }
     }
   }
@@ -167,5 +159,13 @@ public class Bot extends TelegramLongPollingBot {
 
   public String getInQueueName() {
     return inQueueName;
+  }
+
+  public String getEntryName() {
+    return entryName;
+  }
+
+  public void setEntryName(String entryName) {
+    this.entryName = entryName;
   }
 }
