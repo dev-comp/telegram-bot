@@ -3,7 +3,7 @@ package com.bftcom.devcomp.bots;
 /**
  * Константы
  */
-public interface BotConst {
+public interface IBotConst {
     // Префиксы очередей
     String QUEUE_SERVICE_PREFIX = "SERVICE_QUEUE_";   // Очереди, которые слушает сервис
     String QUEUE_ADAPTER_PREFIX = "ADAPTER_QUEUE_";   // Очереди, которые слушают адаптеры
@@ -13,4 +13,8 @@ public interface BotConst {
     String PROP_ADAPTER_NAME = "ADAPTER_NAME";                // Свойство, определяющие имя адаптера
     String PROP_ENTRY_NAME = "ENTRY_NAME";                    // Свойство, определяющие имя экземпляра адаптера
     String PROP_USER_NAME = "USER_NAME";                      // Свойство, определяющие имя пользователя
+
+    // Имена пользователских пропертей, передаваемых в сообщении
+    String PROP_BODY_TEXT = "BODY_TEXT";                // Свойство, определяющие текст, передаваемый от бота и обратно (текст сообщения)
+
 }

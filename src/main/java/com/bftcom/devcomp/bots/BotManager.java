@@ -21,7 +21,12 @@ import java.util.concurrent.TimeoutException;
  * @date: 16.09.2016.
  */
 public class BotManager implements IBotManager {
+  String managementQueueName = "ManagementQueue";
+//  # Имя прослушиваемой очереди для сообщений от экземпляров ботов
+  String entryQueue = "EntryQueue";
   public static final String TELEGRAM_ADAPTER = "telegram-adapter";
+  
+
 
   @SuppressWarnings("PackageAccessibility")
   private static final Logger logger = LoggerFactory.getLogger(BotManager.class);
@@ -42,8 +47,9 @@ public class BotManager implements IBotManager {
     try {
       connection = factory.newConnection();
       Channel channel = connection.createChannel();
-      String AdapterQueueName = BotConst.QUEUE_ADAPTER_PREFIX + TELEGRAM_ADAPTER;
-      AMQP.Queue.DeclareOk declareOk = channel.queueDeclare(AdapterQueueName, false, false, false, null);
+//      String adapterQueueName = IBotConst.QUEUE_SERVICE_PREFIX + managementQueueName;
+      String adapterQueueName = IBotConst.QUEUE_ADAPTER_PREFIX + TELEGRAM_ADAPTER;
+      AMQP.Queue.DeclareOk declareOk = channel.queueDeclare(adapterQueueName, false, false, false, null);
       channel.addShutdownListener(cause -> logger.info("shutting down channel " + declareOk.getQueue()));
 
       String[] _consumerTag = new String[1];
@@ -74,12 +80,12 @@ public class BotManager implements IBotManager {
             logger.info("lets try to stop all bot sessions");
           } else if (message.getCommand().equals(BotCommand.ADAPTER_START_ENTRY)) {
             logger.info("lets try to start bot session");
-            startBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN), message.getUserProperties(), message.getServiceProperties());
+            startBotSession(message.getUserProperties().get(Configuration.BOT_TOKEN), message.getUserProperties());
           }
         }
       };
-      logger.debug("subscribing to a queue " + AdapterQueueName);
-      _consumerTag[0] = channel.basicConsume(AdapterQueueName, true, consumer);
+      logger.debug("subscribing to a queue " + adapterQueueName);
+      _consumerTag[0] = channel.basicConsume(adapterQueueName, true, consumer);
 
     } catch (IOException | TimeoutException e) {
       logger.error("", e);
@@ -87,8 +93,8 @@ public class BotManager implements IBotManager {
   }
 
   @Override
-  public boolean startBotSession(String id, Map<String, String> userProps, Map<String, String> serviceProp) {
-    logger.info("startBotSession id=" + id + ";config=" + userProps.toString());
+  public boolean startBotSession(String id, Map<String, String> config) {
+    logger.info("startBotSession id=" + id + ";config=" + config.toString());
     //prevent starting bot sessions with the same id
     if (id != null) {
       synchronized (botSessions) {
@@ -98,56 +104,40 @@ public class BotManager implements IBotManager {
         }
       }
     }
-    BotOptions botOptions = new BotOptions();
-    String proxyHost = userProps.get(Configuration.PROXY_HOST);
-    String proxyPort = userProps.get(Configuration.PROXY_PORT);
-
-    //set proxy options only if both proxyHost and poxyPort are defined
-    if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && Integer.parseInt(proxyPort) > 0) {
-      botOptions.setProxyHost(proxyHost);
-      botOptions.setProxyPort(Integer.parseInt(proxyPort));
-    }
-
-    Bot bot = new Bot(botOptions, serviceProp) {
+    BotOptions botOptions = getBotOptionsWithProxyConfig(config);
+    Bot bot = new Bot(botOptions) {
       @Override
       public String getBotUsername() {
-        logger.debug("getBotUserName ");
-        logger.debug(userProps.get(Configuration.BOT_USERNAME));
-        return userProps.get(Configuration.BOT_USERNAME);
+        logger.debug("getBotUserName="+config.get(Configuration.BOT_USERNAME));
+        return config.get(Configuration.BOT_USERNAME);
       }
 
       @Override
       public String getBotToken() {
         logger.debug("getBotToken ");
-        logger.debug(userProps.get(Configuration.BOT_TOKEN));
-        return userProps.get(Configuration.BOT_TOKEN);
+        logger.debug(config.get(Configuration.BOT_TOKEN));
+        return config.get(Configuration.BOT_TOKEN);
       }
     };
 
     try {
       logger.warn("creating queues");
-/*
-      String outQueueName = QueuesConfiguration.BOT_PREFIX + QueuesConfiguration.OUT_QUEUE;
+      String outQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
       Channel outChannel = createChannel(outQueueName);
-*/
 
-      String inQueueName = BotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
+      String inQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "EntryQueue";
       Channel inChannel = createChannel(inQueueName);
 
       bot.setInQueueName(inQueueName);
-/*
       bot.setOutQueueName(outQueueName);
-*/
       bot.setInChannel(inChannel);
-/*
       bot.setOutChannel(outChannel);
-*/
     } catch (IOException e) {
       return false;
     }
 
     try {
-      logger.info("registering bot " + id + " " + userProps.toString());
+      logger.info("registering bot " + id + " " + config.toString());
       BotSession botSession = telegramBotsApi.registerBot(bot);
       synchronized (botSessions) {
         botSessions.put(id, botSession);
@@ -157,6 +147,19 @@ public class BotManager implements IBotManager {
       return false;
     }
     return true;
+  }
+
+  private BotOptions getBotOptionsWithProxyConfig(Map<String, String> config) {
+    BotOptions botOptions = new BotOptions();
+    String proxyHost = config.get(Configuration.PROXY_HOST);
+    String proxyPort = config.get(Configuration.PROXY_PORT);
+
+    //set proxy options only if both proxyHost and poxyPort are defined
+    if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null && Integer.parseInt(proxyPort) > 0) {
+      botOptions.setProxyHost(proxyHost);
+      botOptions.setProxyPort(Integer.parseInt(proxyPort));
+    }
+    return botOptions;
   }
 
   @Override

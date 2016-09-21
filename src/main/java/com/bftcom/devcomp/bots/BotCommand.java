@@ -4,9 +4,9 @@ package com.bftcom.devcomp.bots;
  * Набор команд для адаптеров и их реализаций
  */
 public enum BotCommand {
-    ADAPTER_START_ENTRY,
-    ADAPTER_STOP_ENTRY,
-    ADAPTER_STOP_ALL_ENTRIES,
-    ADAPTER_PROCESS_MESSAGE,
-    SERVICE_PROCESS_ENTRY_MESSAGE
-    }
+  SERVICE_GET_ACTIVE_ENTRIES,     // команда сервису от адаптера на предоставление списка активных экземпляров ботов
+  SERVICE_PROCESS_ENTRY_MESSAGE,  // команда сервису на обработку сообщения от экземпляра бота (проброску клиенту)
+  ADAPTER_START_ENTRY,            // команда адаптеру на запуск экземпляра бота
+  ADAPTER_STOP_ENTRY,             // команда адаптеру на остановку экземпляра бота
+  ADAPTER_STOP_ALL_ENTRIES        // команда адаптеру на остановку всех экземпляров его ботов
+}

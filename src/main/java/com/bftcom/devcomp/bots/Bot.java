@@ -28,33 +28,45 @@ public class Bot extends TelegramLongPollingBot {
   private static ObjectMapper mapper = new ObjectMapper();
   private String outQueueName;
   private String inQueueName;
-  private Map<String, String> serviceProp;
 
-  public Bot(BotOptions options, Map<String, String> serviceProp) {
+  @SuppressWarnings("PackageAccessibility")
+  private static ObjectMapper objectMapper = new ObjectMapper();
+
+  public Bot(BotOptions options) {
     super(options);
-    this.serviceProp = serviceProp;
   }
-  
-  
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
 
+  /**
+   * Handle incoming messages from IM users
+   * @param update Update received
+   */
   @Override
   public void onUpdateReceived(Update update) {
     if (update.hasMessage()) {
       Message message = update.getMessage();
-      logger.debug("Message received: " + update);
+      logger.info("Message received: " + update);
 
       if (message.hasText()) {
-        try {
-          com.bftcom.devcomp.bots.Message botMsg = new com.bftcom.devcomp.bots.Message();
-          botMsg.setCommand(BotCommand.SERVICE_PROCESS_ENTRY_MESSAGE);
-          botMsg.getServiceProperties().put(BotConst.PROP_ENTRY_NAME, serviceProp.get(BotConst.PROP_ENTRY_NAME));
-          botMsg.getServiceProperties().put(BotConst.PROP_USER_NAME, message.getFrom().getFirstName());
-          botMsg.getUserProperties().put("BODY_TEXT", message.getText());
-          // todo остальные нужные параметры
+        com.bftcom.devcomp.bots.Message msgToForward = new com.bftcom.devcomp.bots.Message();
+        msgToForward.setCommand(BotCommand.SERVICE_PROCESS_ENTRY_MESSAGE);
+        Map<String, String> userProperties = msgToForward.getUserProperties();
+        Map<String, String> serviceProperties = msgToForward.getServiceProperties();
+        
+        userProperties.put(IBotConst.PROP_BODY_TEXT, message.getText());
 
-          inChannel.basicPublish("", inQueueName, null, objectMapper.writeValueAsString(botMsg).getBytes(StandardCharsets.UTF_8));
+        serviceProperties.put("chatId", String.valueOf(message.getChatId()));
+        userProperties.put(IBotConst.PROP_ADAPTER_NAME, "telegram-adapter");
+        userProperties.put(IBotConst.PROP_ENTRY_NAME, getBotUsername());
+        userProperties.put(IBotConst.PROP_USER_NAME, String.valueOf(message.getFrom().getUserName()));
+
+        serviceProperties.put("chatId", String.valueOf(message.getChatId()));
+        serviceProperties.put(IBotConst.PROP_ADAPTER_NAME, "telegram-adapter");
+        serviceProperties.put(IBotConst.PROP_ENTRY_NAME, getBotUsername());
+        serviceProperties.put(IBotConst.PROP_USER_NAME, String.valueOf(message.getFrom().getUserName()));
+      
+        try {
+          inChannel.basicPublish("", inQueueName, null, objectMapper.writeValueAsString(msgToForward).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -117,6 +129,7 @@ public class Bot extends TelegramLongPollingBot {
         
 //        message.getChatId().toString()
         sendMessageRequest.setChatId(""); //who should get from the message the sender that sent it.
+        
         sendMessageRequest.setText(message.getUserProperties().get("body"));
 
         try {
@@ -127,13 +140,11 @@ public class Bot extends TelegramLongPollingBot {
         
       }
     };
-/*
     try {
       _consumerTag[0] = channel.basicConsume(QueuesConfiguration.MANAGEMENT_QUEUE, true, consumer);
     } catch (IOException e) {
       e.printStackTrace();
     }
-*/
 
   }
 

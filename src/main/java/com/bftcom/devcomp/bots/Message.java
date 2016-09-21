@@ -1,8 +1,5 @@
 package com.bftcom.devcomp.bots;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +23,7 @@ public class Message {
     this.command = command;
   }
 
+  @SuppressWarnings("unused")
   public Map<String, String> getUserProperties() {
     return userProperties;
   }
@@ -34,6 +32,7 @@ public class Message {
     this.userProperties = userProperties;
   }
 
+  @SuppressWarnings("unused")
   public Map<String, String> getServiceProperties() {
     return serviceProperties;
   }
@@ -49,18 +48,5 @@ public class Message {
         ", userProperties=" + userProperties +
         ", serviceProperties=" + serviceProperties +
         '}';
-  }
-
-  @SuppressWarnings("PackageAccessibility")
-  public static void main(String[] args) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Message message = new Message();
-//    message.setCommand(BotCommand.ENTRY_PROCESS_MESSAGE);
-
-    try {
-      System.out.println(objectMapper.writeValueAsString(message));
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-    }
   }
 }
