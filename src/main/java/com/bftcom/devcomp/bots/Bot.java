@@ -1,7 +1,10 @@
 package com.bftcom.devcomp.bots;
 
+import com.bftcom.devcomp.api.BotCommand;
+import com.bftcom.devcomp.api.IBotConst;
+import com.bftcom.devcomp.bots.queues.BotQueueConsumer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.TelegramApiException;
@@ -16,41 +19,47 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
+ * Бот для Telegram
+ *
  * @author ikka
  * @date: 10.09.2016.
  */
 public class Bot extends TelegramLongPollingBot {
   @SuppressWarnings("PackageAccessibility")
-  private static Logger logger = LoggerFactory.getLogger(Bot.class);
-  private Channel inChannel;
-  private Channel outChannel;
+  private static final Logger logger = LoggerFactory.getLogger(Bot.class);
   @SuppressWarnings("PackageAccessibility")
-  private static ObjectMapper mapper = new ObjectMapper();
+  private static final ObjectMapper mapper = new ObjectMapper();
+
+  private String username;
+  private String token;
+  private Channel inChannel;
+  private Channel outChannel;//
   private String outQueueName;
   private String inQueueName;
 
-  private String Name;
+  private String name;
 
-  @SuppressWarnings("PackageAccessibility")
-  private static ObjectMapper objectMapper = new ObjectMapper();
 
-  public Bot(BotOptions options) {
-    super(options);
+  public Bot(BotOptions botOptions, String name, String username, String token) {
+    super(botOptions);
+    this.name = name;
+    this.username = username;
+    this.token = token;
   }
-
 
   /**
    * Handle incoming messages from IM users
+   *
    * @param update Update received
    */
   @Override
   public void onUpdateReceived(Update update) {
     if (update.hasMessage()) {
-      Message message = update.getMessage();
       logger.info("Message received: " + update);
+      Message message = update.getMessage();
 
       if (message.hasText()) {
-        com.bftcom.devcomp.bots.Message msgToForward = new com.bftcom.devcomp.bots.Message();
+        com.bftcom.devcomp.api.Message msgToForward = new com.bftcom.devcomp.api.Message();
         msgToForward.setCommand(BotCommand.SERVICE_PROCESS_BOT_MESSAGE);
         Map<String, String> userProperties = msgToForward.getUserProperties();
         Map<String, String> serviceProperties = msgToForward.getServiceProperties();
@@ -61,43 +70,38 @@ public class Bot extends TelegramLongPollingBot {
         serviceProperties.put("chatId", String.valueOf(message.getChatId()));
 
         try {
-          inChannel.basicPublish("", inQueueName, null, objectMapper.writeValueAsString(msgToForward).getBytes(StandardCharsets.UTF_8));
+          inChannel.basicPublish("", inQueueName, null, mapper.writeValueAsString(msgToForward).getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
-          e.printStackTrace();
+          logger.error("", e);
         }
       }
 
-      //check if the message has text. it could also contain for example a location ( message.hasLocation() )
+      //todo tmp echo test  
       if (message.hasText()) {
-        //create an object that contains the information to send back the message
         SendMessage sendMessageRequest = new SendMessage();
-        sendMessageRequest.setChatId(message.getChatId().toString()); //who should get from the message the sender that sent it.
+        sendMessageRequest.setChatId(message.getChatId().toString());
         sendMessageRequest.setText(message.getText());
-
-/*
-        if (message.getText().equalsIgnoreCase("exit")) {
-          logger.info("Bot is shutting down");
-          System.exit(0);
-
+        try {
+          sendMessage(sendMessageRequest);
+        } catch (TelegramApiException e) {
+          logger.error("", e);
         }
-*/
       }
     }
   }
 
   @Override
   public String getBotUsername() {
-    return "BftDevCompEchoService";
+    return username;
   }
 
   @Override
   public String getBotToken() {
-    return "299411168:AAFB8lD1_08mklizl_xwH93lIckjEHIpjCE";
+    return token;
   }
 
   public void setInChannel(Channel inChannel) {
     this.inChannel = inChannel;
-    
   }
 
   public Channel getInChannel() {
@@ -106,38 +110,11 @@ public class Bot extends TelegramLongPollingBot {
 
   public void setOutChannel(Channel outChannel) {
     this.outChannel = outChannel;
-    Channel channel = outChannel;
-    String[] _consumerTag = new String[1];
-    Consumer consumer = new DefaultConsumer(channel) {
-      @Override
-      public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
-          throws IOException {
-
-        String sMsg = new String(body, StandardCharsets.UTF_8);
-        com.bftcom.devcomp.bots.Message message = mapper.readValue(sMsg, com.bftcom.devcomp.bots.Message.class);
-        logger.info(" [-] Received message in OUT_QUEUE'" + message + "'");
-
-        SendMessage sendMessageRequest = new SendMessage();
-        
-//        message.getChatId().toString()
-        sendMessageRequest.setChatId(message.getServiceProperties().get("chatId")); //who should get from the message the sender that sent it.
-        
-        sendMessageRequest.setText(message.getUserProperties().get(IBotConst.PROP_BODY_TEXT));
-
-        try {
-          sendMessage(sendMessageRequest); //at the end, so some magic and send the message ;)
-        } catch (TelegramApiException e) {
-          logger.error("", e);
-        }
-        
-      }
-    };
     try {
-      _consumerTag[0] = channel.basicConsume(getOutQueueName(), true, consumer);
+      new BotQueueConsumer(outChannel, this);//todo не здесь должно быть
     } catch (IOException e) {
-      e.printStackTrace();
+      logger.error("", e);
     }
-
   }
 
   public Channel getOutChannel() {
@@ -162,10 +139,12 @@ public class Bot extends TelegramLongPollingBot {
   }
 
   public String getName() {
-    return Name;
+    return name;
   }
 
   public void setName(String name) {
-    this.Name = name;
+    this.name = name;
   }
+
+
 }
