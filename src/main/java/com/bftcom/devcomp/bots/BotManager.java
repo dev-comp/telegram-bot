@@ -47,7 +47,7 @@ public class BotManager implements IBotManager {
     try {
       connection = factory.newConnection();
       channel = connection.createChannel();
-      new AdapterQueueConsumer(channel, this, IBotConst.QUEUE_ADAPTER_PREFIX + TELEGRAM_ADAPTER);
+      new AdapterQueueConsumer(channel, this, IBotConst.QUEUE_TO_ADAPTER_PREFIX + TELEGRAM_ADAPTER);
     } catch (IOException | TimeoutException e) {
       logger.error("", e);
     }
@@ -70,9 +70,8 @@ public class BotManager implements IBotManager {
     Bot bot = new Bot(botOptions, serviceProps.get(IBotConst.PROP_BOT_NAME), userProps.get(Configuration.BOT_USERNAME), userProps.get(Configuration.BOT_TOKEN));
 
     try {
-
-      String outQueueName = IBotConst.QUEUE_BOT_PREFIX + bot.getName();
-      String inQueueName = IBotConst.QUEUE_SERVICE_PREFIX + "BotQueue";
+      String outQueueName = IBotConst.QUEUE_TO_BOT_PREFIX + bot.getName();
+      String inQueueName = IBotConst.QUEUE_FROM_BOT_PREFIX + bot.getName();
 
       logger.debug("creating queues");
       bot.setInQueueName(inQueueName);
