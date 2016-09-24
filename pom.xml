@@ -274,7 +274,7 @@
             <!--<Private-Package>com.bftcom.osgi.*</Private-Package>-->
             <!--<Export-Package>com.bftcom.devcomp.bots</Export-Package>-->
             <Import-Package>!com.sun.*,!groovy.*,!jersey.repackaged.com.google.common.*,*</Import-Package>
-            <Bundle-Activator>com.bftcom.devcomp.bots.Activator</Bundle-Activator>
+            <Bundle-Activator>com.bftcom.devcomp.Activator</Bundle-Activator>
             <Bundle-SymbolicName>TelegramBot</Bundle-SymbolicName>
             <!-- embed all compile and runtime scope dependencies -->
             <!--<Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>-->
