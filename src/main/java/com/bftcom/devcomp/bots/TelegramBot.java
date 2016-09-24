@@ -23,6 +23,7 @@ import java.util.Map;
  * @author ikka
  * @date: 10.09.2016.
  */
+@SuppressWarnings("PackageAccessibility")
 public class TelegramBot extends TelegramLongPollingBot implements IBot {
   @SuppressWarnings("PackageAccessibility")
   private static final Logger logger = LoggerFactory.getLogger(TelegramBot.class);
