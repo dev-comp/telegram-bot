@@ -86,6 +86,8 @@ public class TelegramAdapter extends AbstractMessengerAdapter<BotSession> {
     HashMap<String, String> serviceProps = new HashMap<>();
     serviceProps.put(IBotConst.PROP_BOT_NAME, "tester");
     HashMap<String, String> userProps = new HashMap<>();
+    userProps.put(Configuration.PROXY_HOST, "localhost");
+    userProps.put(Configuration.PROXY_PORT, "53128");
     userProps.put(Configuration.BOT_USERNAME, "TelIkka");
     userProps.put(Configuration.BOT_TOKEN, "298315362:AAEZMVxS0x6EEFTtEO8RJrSKQzl3LT0CziE");
     botManager.startBotSession("test", userProps, serviceProps);
