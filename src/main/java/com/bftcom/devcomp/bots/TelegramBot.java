@@ -61,7 +61,7 @@ public class TelegramBot extends TelegramLongPollingBot implements IBot {
         Map<String, String> serviceProperties = msgToForward.getServiceProperties();
         userProperties.put(IBotConst.PROP_BODY_TEXT, message.getText());
         serviceProperties.put(IBotConst.PROP_BOT_NAME, getName());
-        serviceProperties.put(IBotConst.PROP_USER_NAME, message.getFrom().getFirstName());
+        serviceProperties.put(IBotConst.PROP_USER_NAME, message.getFrom().getFirstName() + "(" + message.getFrom().getId() + ")");
         serviceProperties.put("chatId", String.valueOf(message.getChatId()));
 
         handleUserIncomingData(msgToForward);
