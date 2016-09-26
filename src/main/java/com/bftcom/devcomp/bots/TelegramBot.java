@@ -67,7 +67,7 @@ public class TelegramBot extends TelegramLongPollingBot implements IBot {
         handleUserIncomingData(msgToForward);
       }
 
-      //todo tmp echo test  
+/*
       if (message.hasText()) {
         SendMessage sendMessageRequest = new SendMessage();
         sendMessageRequest.setChatId(message.getChatId().toString());
@@ -78,6 +78,7 @@ public class TelegramBot extends TelegramLongPollingBot implements IBot {
           logger.error("", e);
         }
       }
+*/
     }
   }
 
